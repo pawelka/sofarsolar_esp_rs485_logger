@@ -6,10 +6,10 @@
  * This software may be modified and distributed under the terms
  * of the MIT license.  See the LICENSE file for details.
  */
-
 #include <Arduino.h>
 
 #include "Config.h"
+#include "Debug.h"
 #include "InverterValue.h"
 
 #include <MQTT.h>
@@ -19,6 +19,8 @@
 
 WiFiClient net;
 MQTTClient mqttClient(1500);
+boolean skipUnknown = true;
+const char* topic = "test/status";
 
 boolean needMqttConnect = false;
 unsigned long lastReport = 0;
@@ -80,11 +82,15 @@ const InverterValue INVERTER_VALUES[] = {
   InverterValue("unknown_47", 46, 1, "?")
 };
 
+RemoteDebug Debug;
+
 void setup()
 {
   Serial.begin(115200);
-  Serial.println();
   Serial.println("Starting up...");
+#ifndef DEBUG_DISABLED
+  Debug.println("Starting up...");
+#endif
 
   configSetup();
 
@@ -94,7 +100,15 @@ void setup()
   node.begin(1, serial2);
   delay(100);
 
-  Serial.println("Ready.");
+
+	Debug.begin("sofarsolar2mqtt"); // Initialize the WiFi server
+  Debug.setResetCmdEnabled(true); // Enable the reset command
+  Debug.showColors(false);
+  
+
+#ifndef DEBUG_DISABLED
+  Debug.println("Ready.");
+#endif
 }
 
 char message[1500];
@@ -104,38 +118,49 @@ int msgCount = 0;
 void modbusLoop()
 {
 
-  unsigned long now = millis();
-  if ((15000 < now - lastReport) && mqttClient.connected())
+  unsigned long startTime = millis();
+  if ((15000 < startTime - lastReport) && mqttClient.connected())
   {
 
     doc.clear();
     node.clearResponseBuffer();
-    node.readHoldingRegisters(1, INVERTER_BUFFER_TO_READ);
+    int status = node.readHoldingRegisters(1, INVERTER_BUFFER_TO_READ);
 
-    for(int idx = 0; idx < INVERTER_VALUES_SIZE; idx++){
-      InverterValue curr = INVERTER_VALUES[idx];
-      if( idx <= 1){
-        doc[curr.getValueName()] = curr.getStrValue(&node);
-      }else{
-        doc[curr.getValueName()] = curr.getValue(&node);
+    if (status == ModbusMaster::ku8MBSuccess){
+      for(int idx = 0; idx < INVERTER_VALUES_SIZE; idx++){
+        InverterValue curr = INVERTER_VALUES[idx];
+        if(skipUnknown && curr.getUnit()[0] == '?'){
+          continue;
+        }
+        if( idx <= 1){
+          doc[curr.getValueName()] = curr.getStrValue(&node);
+        }else{
+          doc[curr.getValueName()] = curr.getValue(&node);
+        }
       }
+
+      msgCount++;
+#ifndef DEBUG_DISABLED
+      Debug.printf("Sending on MQTT channel '%s': %d \n", topic, msgCount);
+#endif
+
+      serializeJsonPretty(doc, message);
+      mqttClient.publish(topic, message);
     }
 
-    msgCount++;
-    Serial.print("Sending on MQTT channel '/test/status': ");
-    Serial.println(msgCount);
+    lastReport = startTime;
 
-    serializeJsonPretty(doc, message);
-    mqttClient.publish("/test/status", message);
-    lastReport = now;
-
-    Serial.print("Loop time: ");
-    Serial.println(millis() - now);
+#ifndef DEBUG_DISABLED
+    Debug.printf("Loop time: %d \n", (millis() - startTime));
+#endif    
   }
 }
 
 void loop()
 {
+  Debug.handle();
+  // debugHandle(); // Equal to SerialDebug
+
   configLoop();
   mqttClient.loop();
 
@@ -148,7 +173,9 @@ void loop()
   }
   else if ( isOnline() && !mqttClient.connected())
   {
-    Serial.println("MQTT reconnect");
+#ifndef DEBUG_DISABLED
+    Debug.println("MQTT reconnect");
+#endif
     connectMqtt();
   }
 
@@ -186,13 +213,17 @@ boolean connectMqtt()
     // Do not repeat within 1 sec.
     return false;
   }
-  Serial.println("Connecting to MQTT server...");
+#ifndef DEBUG_DISABLED
+  Debug.println("Connecting to MQTT server...");
+#endif
   if (!connectMqttOptions())
   {
     lastMqttConnectionAttempt = now;
     return false;
   }
-  Serial.println("Connected!");
+#ifndef DEBUG_DISABLED
+  Debug.println("Connected!");
+#endif
 
   return true;
 }

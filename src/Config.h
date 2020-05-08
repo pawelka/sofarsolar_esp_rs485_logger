@@ -2,6 +2,7 @@
 #define Config_h
 
 #include "Arduino.h"
+#include "Debug.h"
 #include <IotWebConf.h>
 
 const char thingName[] = "sofarsolar2mqtt";

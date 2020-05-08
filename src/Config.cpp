@@ -65,7 +65,9 @@ void configLoop(){
   iotWebConf.doLoop();
 
   if (needReset){
-    Serial.println("Rebooting after 1 second.");
+#ifndef DEBUG_DISABLED
+    Debug.println("Rebooting after 1 second.");
+#endif
     iotWebConf.delay(1000);
     ESP.restart();
   }
@@ -82,13 +84,17 @@ char* getThingName(){
 
 void configSaved()
 {
-  Serial.println("Configuration was updated.");
+#ifndef DEBUG_DISABLED
+  Debug.println("Configuration was updated.");
+#endif
   needReset = true;
 }
 
 boolean formValidator()
 {
-  Serial.println("Validating form.");
+#ifndef DEBUG_DISABLED
+  Debug.println("Validating form.");
+#endif
   boolean valid = true;
 
   int l = server.arg(mqttServerParam.getId()).length();
