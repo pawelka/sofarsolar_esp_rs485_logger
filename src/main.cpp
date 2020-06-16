@@ -8,25 +8,28 @@
  */
 #include <Arduino.h>
 
+#define HARDWARE_SERIAL
+
 #include "Config.h"
 #include "Debug.h"
 #include "InverterValue.h"
 
 #include <MQTT.h>
 #include <ModbusMaster.h>
-#include <SoftwareSerial.h> // Modbus RTU pins   D7(13),D8(15)   RX,TX
 #include <ArduinoJson.h>
 
 WiFiClient net;
 MQTTClient mqttClient(1500);
 boolean skipUnknown = true;
-const char* topic = "test/status";
 
 boolean needMqttConnect = false;
 unsigned long lastReport = 0;
 unsigned long lastMqttConnectionAttempt = 0;
 
-SoftwareSerial serial2(D1, D2); //RX, TX
+#ifndef HARDWARE_SERIAL
+#include <SoftwareSerial.h> // Modbus RTU pins   D7(13),D8(15)   RX,TX
+  SoftwareSerial serial2(D1, D2); //RX, TX
+#endif
 ModbusMaster node;
 
 boolean connectMqtt();
@@ -83,11 +86,11 @@ const InverterValue INVERTER_VALUES[] = {
 };
 
 RemoteDebug Debug;
+int reportInterval;
 
 void setup()
 {
-  Serial.begin(115200);
-  Serial.println("Starting up...");
+  Serial.begin(9600);
 #ifndef DEBUG_DISABLED
   Debug.println("Starting up...");
 #endif
@@ -96,10 +99,15 @@ void setup()
 
   mqttClient.begin(getMqttServerValue(), net);
 
+#ifdef HARDWARE_SERIAL
+ node.begin(1, Serial);
+#else
   serial2.begin(9600);
   node.begin(1, serial2);
+#endif
   delay(100);
 
+  reportInterval = getCheckInterval() * 1000;
 
 	Debug.begin("sofarsolar2mqtt"); // Initialize the WiFi server
   Debug.setResetCmdEnabled(true); // Enable the reset command
@@ -108,6 +116,8 @@ void setup()
 
 #ifndef DEBUG_DISABLED
   Debug.println("Ready.");
+  Debug.print("Report interval: ");
+  Debug.println(reportInterval);
 #endif
 }
 
@@ -117,10 +127,12 @@ int msgCount = 0;
 
 void modbusLoop()
 {
-
   unsigned long startTime = millis();
-  if ((15000 < startTime - lastReport) && mqttClient.connected())
+  if ((reportInterval < startTime - lastReport) && mqttClient.connected())
   {
+    Debug.print("Report status with interval: ");
+    Debug.println(reportInterval);
+
 
     doc.clear();
     node.clearResponseBuffer();
@@ -141,11 +153,11 @@ void modbusLoop()
 
       msgCount++;
 #ifndef DEBUG_DISABLED
-      Debug.printf("Sending on MQTT channel '%s': %d \n", topic, msgCount);
+      Debug.printf("Sending on MQTT channel '%s': %d \n", getMqttTopicValue(), msgCount);
 #endif
 
       serializeJsonPretty(doc, message);
-      mqttClient.publish(topic, message);
+      mqttClient.publish(getMqttTopicValue(), message, true, 1);
     }
 
     lastReport = startTime;

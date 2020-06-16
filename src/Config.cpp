@@ -13,6 +13,8 @@ HTTPUpdateServer httpUpdater;
 char mqttServerValue[STRING_LEN];
 char mqttUserNameValue[STRING_LEN];
 char mqttUserPasswordValue[STRING_LEN];
+char mqttTopicValue[STRING_LEN];
+char checkIntervalValue[NUMBER_LEN];
 
 boolean needReset = false;
 
@@ -20,6 +22,8 @@ IotWebConf iotWebConf(thingName, &dnsServer, &server, wifiInitialApPassword, CON
 IotWebConfParameter mqttServerParam = IotWebConfParameter("MQTT server", "mqttServer", mqttServerValue, STRING_LEN);
 IotWebConfParameter mqttUserNameParam = IotWebConfParameter("MQTT user", "mqttUser", mqttUserNameValue, STRING_LEN);
 IotWebConfParameter mqttUserPasswordParam = IotWebConfParameter("MQTT password", "mqttPass", mqttUserPasswordValue, STRING_LEN, "password");
+IotWebConfParameter mqttTopicParam = IotWebConfParameter("MQTT topic", "mqttTopic", mqttTopicValue, STRING_LEN, "text", NULL, "inverter/status");
+IotWebConfParameter checkIntervalParam = IotWebConfParameter("Check inverval in sec", "checkInterval", checkIntervalValue, NUMBER_LEN, "number", "1..3600", "300", "min='1' max='3600' step='1'");
 
 boolean isNeedReset(){
     return needReset;
@@ -33,6 +37,12 @@ char* getMqttUserNameValue(){
 char* getMqttUserPasswordValue(){
     return mqttUserPasswordValue;
 }
+char* getMqttTopicValue(){
+    return mqttTopicValue;
+}
+int getCheckInterval(){
+    return atoi(checkIntervalValue);
+}
 
 void configSetup(){
   iotWebConf.skipApStartup();
@@ -41,10 +51,12 @@ void configSetup(){
   iotWebConf.addParameter(&mqttServerParam);
   iotWebConf.addParameter(&mqttUserNameParam);
   iotWebConf.addParameter(&mqttUserPasswordParam);
+  iotWebConf.addParameter(&mqttTopicParam);
+  iotWebConf.addParameter(&checkIntervalParam);
   iotWebConf.setConfigSavedCallback(&configSaved);
   iotWebConf.setFormValidator(&formValidator);
   iotWebConf.setWifiConnectionCallback(&wifiConnected);
-  iotWebConf.setupUpdateServer(&httpUpdater);
+  // iotWebConf.setupUpdateServer(&httpUpdater);
 
   // -- Initializing the configuration.
   boolean validConfig = iotWebConf.init();
@@ -53,6 +65,8 @@ void configSetup(){
     mqttServerValue[0] = '\0';
     mqttUserNameValue[0] = '\0';
     mqttUserPasswordValue[0] = '\0';
+    mqttTopicValue[0] = '\0';
+    checkIntervalValue[0] = '\0';
   }
 
   server.on("/", [] { iotWebConf.handleConfig(); });

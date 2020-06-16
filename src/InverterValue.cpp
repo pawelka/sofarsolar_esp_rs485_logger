@@ -27,7 +27,13 @@ String BYTE0_FAULTS[] = {"GridOVP", "GridUVP", "GridOFP", "GridUFP", "BatOVP"};
 String InverterValue::getStrValue(ModbusMaster* master){
     if(this->byteno == -1){
         if(master->getResponseBuffer(0) == 0){
-            return "normal"; 
+            if (master->getResponseBuffer(14) == 0 && master->getResponseBuffer(16) == 0 && master->getResponseBuffer(18) == 0){ //ac voltage zero
+                return "off";
+            }else if (master->getResponseBuffer(11) == 0){ //ac power zero
+                return "standby";
+            }else{
+                return "normal"; 
+            }
         }else{
             return "fault";
         }
