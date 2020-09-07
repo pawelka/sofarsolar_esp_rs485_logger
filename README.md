@@ -35,6 +35,7 @@ Username: admin
 Password: sofarsolar2mqtt
 
 All available parameters are on screen below:
+
 ![](images/config.png)
 
 ## Images
