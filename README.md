@@ -22,7 +22,7 @@ I bought everything from China directly. Total cost is around $5, so much cheape
 ![](images/schematic.jpg)
 
 ## Image installation
-Download image from *build* folder and load it to your ESP. There is a lot of tutorials how to do it on the internet ;-)
+Download image from *build* folder and load it to your ESP (I used esptool to do this). There is a lot of tutorials how to do it on the internet ;-)
 
 ## Connection to the inverter
 Check last image. I used 5V power directly from the inverter. Red cable on photo is VCC and brown is GND. Inverter provides power only during a day, but solutions uses MQTT, so during the night there is no messages.
