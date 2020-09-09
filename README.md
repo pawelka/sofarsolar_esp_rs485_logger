@@ -58,8 +58,39 @@ All available parameters are on screen below:
 ![](images/inverter1.jpg)
 ![](images/inverter2.jpg)
 
-
-
-
+## Sample MQTT message
+```
+{
+    "status": "normal",
+    "fault_message": "",
+    "dc_voltage_1": 324.1,
+    "dc_current_1": 5.38,
+    "dc_voltage_2": 252.3,
+    "dc_current_2": 5.4,
+    "ac_power": 2950,
+    "ac_frequency": 49.96,
+    "ac_voltage_1": 228.3,
+    "ac_current_1": 4.4,
+    "ac_voltage_2": 227.9,
+    "ac_current_2": 4.39,
+    "ac_voltage_3": 228.5,
+    "ac_current_3": 4.39,
+    "energy_total": 4882,
+    "running_time": 2919,
+    "energy_today": 2.92,
+    "temperature_module": 38,
+    "temperature_inverter": 49,
+    "bus_voltage": 622.8,
+    "vice_cpu_input_voltage_1": 323.1,
+    "countdown_timer": 60,
+    "pv1_insulation_resistance": 1324,
+    "pv2_insulation_resistance": 2022,
+    "isolation_impedance": 1635,
+    "country_code?": 12,
+    "phase_a_distribution": 1006,
+    "phase_b_distribution": 996,
+    "phase_c_distribution": 975
+}
+```
 
 
