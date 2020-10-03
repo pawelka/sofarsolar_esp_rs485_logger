@@ -10,6 +10,10 @@ At the end I finished with two working loggers in parallel ;-)
 ## Supported inverters
 For sure SofarSolar KTL-X 8.8 and other powers from KTL-X. There is a chance that other brands from the same familly with work, so if someone check please let me know.
 
+Tested supported devices:
+* Sofar KTL-X 8.8 (whole series of KTL-X should work)
+* Sofar 4K TLM-G2 
+
 ## Parts needed to build own local logger
 * "ESP-07 WiFi serial" - you will find the part under this name
 * RS485 to TTL converter compatible with 3v3 (3v3 is an important, because ESP-07 operates on 3v3 TTL levels)
