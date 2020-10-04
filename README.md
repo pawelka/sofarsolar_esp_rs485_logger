@@ -97,4 +97,149 @@ All available parameters are on screen below:
 }
 ```
 
+## Sample Home Assistant configuration
+Part of the sensors are commented, because they are too technical. 
+
+```
+sensor sofar:
+  - platform: mqtt
+    name: "Inverter status"
+    state_topic: "inverter/status"
+    value_template: "{{ value_json.status }}"
+  - platform: mqtt
+    name: "Inverter fault message"
+    state_topic: "inverter/status"
+    value_template: "{{ value_json.fault_message }}"
+  - platform: mqtt
+    name: "Inverter DC voltage 1"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'V'
+    value_template: "{{ value_json.dc_voltage_1 }}"
+  - platform: mqtt
+    name: "Inverter DC current 1"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'A'
+    value_template: "{{ value_json.dc_current_1 }}"
+  - platform: mqtt
+    name: "Inverter DC voltage 2"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'V'
+    value_template: "{{ value_json.dc_voltage_2 }}"
+  - platform: mqtt
+    name: "Inverter DC current 2"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'A'
+    value_template: "{{ value_json.dc_current_2 }}"
+  - platform: mqtt
+    name: "Inverter AC current power"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'W'
+    value_template: "{{ value_json.ac_power }}"
+  - platform: mqtt
+    name: "Inverter AC current frequency"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'Hz'
+    value_template: "{{ value_json.ac_frequency }}"
+  - platform: mqtt
+    name: "Inverter AC voltage 1"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'V'
+    value_template: "{{ value_json.ac_voltage_1 }}"
+  - platform: mqtt
+    name: "Inverter AC current 1"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'A'
+    value_template: "{{ value_json.ac_current_1 }}"
+  - platform: mqtt
+    name: "Inverter AC voltage 2"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'V'
+    value_template: "{{ value_json.ac_voltage_2 }}"
+  - platform: mqtt
+    name: "Inverter AC current 2"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'A'
+    value_template: "{{ value_json.ac_current_2 }}"
+  - platform: mqtt
+    name: "Inverter AC voltage 3"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'V'
+    value_template: "{{ value_json.ac_voltage_3 }}"
+  - platform: mqtt
+    name: "Inverter AC current 3"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'A'
+    value_template: "{{ value_json.ac_current_3 }}"
+  - platform: mqtt
+    name: "Inverter energy total"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'kWh'
+    value_template: "{{ value_json.energy_total }}"
+  - platform: mqtt
+    name: "Inverter running time"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'h'
+    value_template: "{{ value_json.running_time }}"
+  - platform: mqtt
+    name: "Inverter energy today"
+    state_topic: "inverter/status"
+    unit_of_measurement: 'kWh'
+    value_template: "{{ value_json.energy_today }}"
+  - platform: mqtt
+    name: "Inverter module temperature"
+    state_topic: "inverter/status"
+    unit_of_measurement: '°C'
+    value_template: "{{ value_json.temperature_module }}"
+  - platform: mqtt
+    name: "Inverter temperature"
+    state_topic: "inverter/status"
+    unit_of_measurement: '°C'
+    value_template: "{{ value_json.temperature_inverter }}"
+
+#   - platform: mqtt
+#     name: "Inverter bus voltage"
+#     state_topic: "inverter/status"
+#     unit_of_measurement: 'V'
+#     value_template: "{{ value_json.bus_voltage }}"
+#   - platform: mqtt
+#     name: "Inverter vice CPU input voltage 1"
+#     state_topic: "inverter/status"
+#     unit_of_measurement: 'V'
+#     value_template: "{{ value_json.vice_cpu_input_voltage_1 }}"
+#   - platform: mqtt
+#     name: "Inverter countdown timer"
+#     state_topic: "inverter/status"
+#     unit_of_measurement: 'h'
+#     value_template: "{{ value_json.countdown_timer }}"
+#   - platform: mqtt
+#     name: "Inverter PV1 insulation resistance"
+#     state_topic: "inverter/status"
+#     unit_of_measurement: 'ohm'
+#     value_template: "{{ value_json.pv1_insulation_resistance }}"
+#   - platform: mqtt
+#     name: "Inverter PV1 insulation resistance"
+#     state_topic: "inverter/status"
+#     unit_of_measurement: 'ohm'
+#     value_template: "{{ value_json.pv2_insulation_resistance }}"
+#   - platform: mqtt
+#     name: "Inverter isolation impedance"
+#     state_topic: "inverter/status"
+#     value_template: "{{ value_json.isolation_impedance }}"
+#   - platform: mqtt
+#     name: "Inverter temperature"
+#     state_topic: "inverter/status"
+#     value_template: "{{ value_json.country_code? }}"
+#   - platform: mqtt
+#     name: "Inverter phase A distribution"
+#     state_topic: "inverter/status"
+#     value_template: "{{ value_json.phase_a_distribution }}"
+#   - platform: mqtt
+#     name: "Inverter phase B distribution"
+#     state_topic: "inverter/status"
+#     value_template: "{{ value_json.phase_b_distribution }}"
+#   - platform: mqtt
+#     name: "Inverter phase C distribution"
+#     state_topic: "inverter/status"
+#     value_template: "{{ value_json.phase_c_distribution }}"
+```
 
