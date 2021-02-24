@@ -40,7 +40,7 @@ Check last image. I used 5V power directly from the inverter. Red cable on photo
 Solution uses IotWebConf library, so after uploading image and switching ESP to boot mode, you should see access point to which you can connect and configure your ESP RS485 logger.
 
 Default IP: 192.168.4.1
-
+Default WiFi password: "sofarsolar2mqtt"
 
 After first configuration, you will need login and password to access configuration:
 
