@@ -8,7 +8,7 @@
  */
 #include <Arduino.h>
 
-#define HARDWARE_SERIAL
+//#define HARDWARE_SERIAL
 
 #include "Config.h"
 #include "Debug.h"

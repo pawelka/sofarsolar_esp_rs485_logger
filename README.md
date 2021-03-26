@@ -243,3 +243,15 @@ sensor sofar:
 #     value_template: "{{ value_json.phase_c_distribution }}"
 ```
 
+## Troubleshoot 
+
+### No Connection to WIFI
+If esp8266 cannot connect to WIFI or you entered wrong password, wait until access point will be exposed, connect to it and enter new WIFI password. You will be prompt for login and password, so enter "admin" as user and password is text which you enter to field "AP password" during first configuration.
+
+### RS485 TXD doesn't blink with defined interval (it should blink even without connecting it to invereter )
+1. Connect to esp8266 with telnet there is a debug console and logs. You need to find IP on your router. 
+2. If you see only messages: "(D) Connecting to MQTT server..." it means that MQTT credencials are wrong, connect to configuration web and reconfigure.
+3. If you see messages: "(D) Report status with interval: 1000" (1000 is interval in millies, this example is 1 sec) it means MQTT is configured properly, then
+   1. Check if converter is properly power use multimeter 
+   2. If it's powered, swap A+ and B+ cables maybe they are connected wrongly. If you use Wemos D1 mini, then use D1 and D2 pins for connection with converter.
+   
