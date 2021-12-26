@@ -1,4 +1,6 @@
 
+# Custom firmware
+
 ## Image installation
 Download image from *build* folder and load it to your ESP. There is a lot of tutorials how to do it on the internet ;-)
 
