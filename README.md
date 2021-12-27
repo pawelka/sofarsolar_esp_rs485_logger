@@ -7,6 +7,10 @@ I asked SofarSolar for documentation of RS485 communication, but no lack. I mana
 
 At the end I finished with two working loggers in parallel ;-)
 
+## Other projects
+Here is a list of other project that you may be intrested:
+* https://github.com/MichaluxPL/Sofar_LSW3 - uses v5 protocol and directly connect to standard WiFi Logger - very intresting project.
+
 ## Supported inverters
 For sure SofarSolar KTL-X 8.8 and other powers from KTL-X. There is a chance that other brands from the same familly with work, so if someone check please let me know.
 
