@@ -5,7 +5,8 @@ Here as a full config used by me to integrated with inverter. After that you see
 Config utilize ESPHome modbus feature https://esphome.io/components/modbus.html
 
 Any suggestion how to improve config are welcome. Potencial improvements
-* better support for fault code. Right now it's a number on;y
+* [DONE] better support for fault code. Right now it's a number only
+* [TODO?] all registers or only useful one?
 
 ## Config
 
@@ -63,7 +64,122 @@ modbus_controller:
     modbus_id: mod_bus_sofar
     update_interval: 10s
 
-# Report basic device information like it's Wi-Fi signal strength and uptime
+text_sensor:
+  - platform: modbus_controller
+    modbus_controller_id: sofarsolar
+    name: ${friendly_name} Status
+    id: inverter_status
+    register_type: holding
+    address: 0x0000
+    response_size: 2
+    lambda: |-
+      auto z = "Unknown";
+      char d = data[item->offset+1];
+      if (d == 0) z = "Wait";
+      else if (d == 1) z = "Check";
+      else if (d == 2) z = "Normal";
+      else if (d == 3) z = "Fault";
+      else if (d == 4) z = "Permanent";
+      return {z};
+  - platform: modbus_controller
+    modbus_controller_id: sofarsolar
+    name: ${friendly_name} Fault Message
+    id: inverter_fault_message
+    register_type: holding
+    address: 0x0001
+    response_size: 10
+    lambda: |-
+      std::string z = "";
+      int idx = item->offset;
+      //byte[0]
+      if ((data[idx] & 0x1) != 0) z += "GridOVP,";
+      if ((data[idx] & 0x2) != 0) z += "GridUVP,";
+      if ((data[idx] & 0x4) != 0) z += "GridOFP,";
+      if ((data[idx] & 0x8) != 0) z += "GridUFP,";
+      if ((data[idx] & 0x10) != 0) z += "PVUVP,";
+      if ((data[idx] & 0x20) != 0) z += "GridLVRT,";
+      if ((data[idx] & 0x40) != 0) z += "reserve-ID7,";
+      if ((data[idx] & 0x80) != 0) z += "reserve-ID8,";
+      //byte[1]
+      idx++;
+      if ((data[idx] & 0x1) != 0) z += "PVOVP,";
+      if ((data[idx] & 0x2) != 0) z += "IpvUnbalance,";
+      if ((data[idx] & 0x4) != 0) z += "PvConfigSetWrong,";
+      if ((data[idx] & 0x8) != 0) z += "GFCIFault,";
+      if ((data[idx] & 0x10) != 0) z += "PhaseSequenceFault,";
+      if ((data[idx] & 0x20) != 0) z += "HwBoostOCP,";
+      if ((data[idx] & 0x40) != 0) z += "HwAcOCP,";
+      if ((data[idx] & 0x80) != 0) z += "AcRmsOCP,";
+      //byte[2]
+      idx++;
+      if ((data[idx] & 0x1) != 0) z += "HwADFaultIGrid,";
+      if ((data[idx] & 0x2) != 0) z += "HwADFaultDCI,";
+      if ((data[idx] & 0x4) != 0) z += "HwADFaultVGrid,";
+      if ((data[idx] & 0x8) != 0) z += "GFCIDeviceFault,";
+      if ((data[idx] & 0x10) != 0) z += "MChip_Fault,";
+      if ((data[idx] & 0x20) != 0) z += "HwAuxPowerFault,";
+      if ((data[idx] & 0x40) != 0) z += "BusVoltZeroFault,";
+      if ((data[idx] & 0x80) != 0) z += "IacRmsUnbalance,";
+      //byte[3]
+      idx++;
+      if ((data[idx] & 0x1) != 0) z += "BusUVP,";
+      if ((data[idx] & 0x2) != 0) z += "BusOVP,";
+      if ((data[idx] & 0x4) != 0) z += "VbusUnbalance,";
+      if ((data[idx] & 0x8) != 0) z += "DciOCP,";
+      if ((data[idx] & 0x10) != 0) z += "SwOCPInstant,";
+      if ((data[idx] & 0x20) != 0) z += "SwBOCPInstant,";
+      if ((data[idx] & 0x40) != 0) z += "reserved-ID31,";
+      if ((data[idx] & 0x80) != 0) z += "reserved-ID32,";
+      //byte[4]
+      idx++;
+      if (data[idx] != 0) z += "reserved-ID33~40,";
+      //byte[5]
+      idx++;
+      if (data[idx] != 0) z += "reserved-ID41~48,";
+      //byte[6]
+      idx++;
+      if ((data[idx] & 0x1) != 0) z += "ConsistentFault_VGrid,";
+      if ((data[idx] & 0x2) != 0) z += "ConsistentFault_FGrid,";
+      if ((data[idx] & 0x4) != 0) z += "ConsistentFault_DCI,";
+      if ((data[idx] & 0x8) != 0) z += "ConsistentFault_GFCI,";
+      if ((data[idx] & 0x10) != 0) z += "SpiCommLose,";
+      if ((data[idx] & 0x20) != 0) z += "SciCommLose,";
+      if ((data[idx] & 0x40) != 0) z += "RelayTestFail,";
+      if ((data[idx] & 0x80) != 0) z += "PvIsoFault,";
+      //byte[7]
+      idx++;
+      if ((data[idx] & 0x1) != 0) z += "OverTempFault_Inv,";
+      if ((data[idx] & 0x2) != 0) z += "OverTempFault_Boost,";
+      if ((data[idx] & 0x4) != 0) z += "OverTempFault_Env,";
+      if ((data[idx] & 0x8) != 0) z += "PEConnectFault,";
+      if ((data[idx] & 0x10) != 0) z += "reserved-ID61,";
+      if ((data[idx] & 0x20) != 0) z += "reserved-ID62,";
+      if ((data[idx] & 0x40) != 0) z += "reserved-ID63,";
+      if ((data[idx] & 0x80) != 0) z += "reserved-ID64,";
+      //byte[8]
+      idx++;
+      if ((data[idx] & 0x1) != 0) z += "unrecoverHwAcOCP,";
+      if ((data[idx] & 0x2) != 0) z += "unrecoverBusOVP,";
+      if ((data[idx] & 0x4) != 0) z += "unrecoverIacRmsUnbalance,";
+      if ((data[idx] & 0x8) != 0) z += "unrecoverIpvUnbalance,";
+      if ((data[idx] & 0x10) != 0) z += "unrecoverVbusUnbalance,";
+      if ((data[idx] & 0x20) != 0) z += "unrecoverOCPInstant,";
+      if ((data[idx] & 0x40) != 0) z += "unrecoverPvConfigSetWrong,";
+      if ((data[idx] & 0x80) != 0) z += "reserved-ID72,";
+      //byte[9]
+      idx++;
+      if ((data[idx] & 0x1) != 0) z += "reserved-ID73,";
+      if ((data[idx] & 0x2) != 0) z += "unrecoverIPVInstant,";
+      if ((data[idx] & 0x4) != 0) z += "unrecoverWRITEEEPROM,";
+      if ((data[idx] & 0x8) != 0) z += "unrecoverREADEEPROM,";
+      if ((data[idx] & 0x10) != 0) z += "unrecoverRelayFail,";
+      if ((data[idx] & 0x20) != 0) z += "reserved-ID78,";
+      if ((data[idx] & 0x40) != 0) z += "reserved-ID79,";
+      if ((data[idx] & 0x80) != 0) z += "reserved-ID80,";
+      if(z.length() > 0){
+        z.pop_back();
+      }
+      return {z};
 sensor:
   - platform: wifi_signal
     id: inverter_wifi_signal
@@ -75,13 +191,6 @@ sensor:
     filters:
       - lambda: return x / 60.0;
     unit_of_measurement: minutes
-  - platform: modbus_controller
-    modbus_controller_id: sofarsolar
-    name: ${friendly_name} Fault Code
-    id: inverter_fault_code
-    register_type: holding
-    address: 0x0001
-    value_type: U_WORD
   - platform: modbus_controller
     modbus_controller_id: sofarsolar
     name: ${friendly_name} DC1 Voltage
@@ -132,6 +241,28 @@ sensor:
       - multiply: 0.01
   - platform: modbus_controller
     modbus_controller_id: sofarsolar
+    name: ${friendly_name} DC1 Power
+    id: inverter_dc_power1
+    register_type: holding
+    address: 0x000a
+    unit_of_measurement: "W"
+    device_class: "power"
+    value_type: U_WORD
+    filters:
+      - multiply: 10
+  - platform: modbus_controller
+    modbus_controller_id: sofarsolar
+    name: ${friendly_name} DC2 Power
+    id: inverter_dc_power2
+    register_type: holding
+    address: 0x000b
+    unit_of_measurement: "W"
+    device_class: "power"
+    value_type: U_WORD
+    filters:
+      - multiply: 10
+  - platform: modbus_controller
+    modbus_controller_id: sofarsolar
     name: ${friendly_name} AC Power
     id: inverter_ac_power
     register_type: holding
@@ -139,6 +270,17 @@ sensor:
     unit_of_measurement: "W"
     device_class: "power"
     value_type: U_WORD
+    filters:
+      - multiply: 10
+  - platform: modbus_controller
+    modbus_controller_id: sofarsolar
+    name: ${friendly_name} AC Reactive Power
+    id: inverter_ac_reactive_power
+    register_type: holding
+    address: 0x000d
+    unit_of_measurement: "Var"
+    device_class: "power"
+    value_type: S_WORD
     filters:
       - multiply: 10
   - platform: modbus_controller
@@ -236,8 +378,8 @@ sensor:
     value_type: U_DWORD
   - platform: modbus_controller
     modbus_controller_id: sofarsolar
-    name: ${friendly_name} Running time
-    id: inverter_running_time
+    name: ${friendly_name} Energy generation time total
+    id: inverter_energy_generation_time_total
     register_type: holding
     address: 0x0017
     unit_of_measurement: "h"
@@ -254,6 +396,14 @@ sensor:
     accuracy_decimals: 2
     filters:
       - multiply: 0.01
+  - platform: modbus_controller
+    modbus_controller_id: sofarsolar
+    name: ${friendly_name} Energy generation time today
+    id: inverter_energy_generation_time_today
+    register_type: holding
+    address: 0x001A
+    unit_of_measurement: "min"
+    value_type: U_WORD
   - platform: modbus_controller
     modbus_controller_id: sofarsolar
     name: ${friendly_name} Temprature module
@@ -284,15 +434,6 @@ sensor:
     accuracy_decimals: 1
     filters:
       - multiply: 0.1
-  - platform: modbus_controller
-    modbus_controller_id: sofarsolar
-    name: ${friendly_name} Countdown timer
-    id: inverter_countdown_timer
-    register_type: holding
-    address: 0x0020
-    unit_of_measurement: "h"
-    value_type: U_WORD
-
       
 # Basic switch to allow you to restart the device remotely
 switch:
