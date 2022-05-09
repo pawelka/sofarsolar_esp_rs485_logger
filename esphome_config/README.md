@@ -374,7 +374,7 @@ sensor:
     register_type: holding
     address: 0x0015
     unit_of_measurement: "kWh"
-    device_class: "power"
+    device_class: "energy"
     value_type: U_DWORD
   - platform: modbus_controller
     modbus_controller_id: sofarsolar
@@ -391,7 +391,7 @@ sensor:
     register_type: holding
     address: 0x0019
     unit_of_measurement: "kWh"
-    device_class: "power"
+    device_class: "energy"
     value_type: U_WORD
     accuracy_decimals: 2
     filters:
