@@ -4,11 +4,24 @@
 // -- Callback method declarations.
 void wifiConnected();
 void configSaved();
-boolean formValidator();
+boolean formValidator(iotwebconf::WebRequestWrapper* webRequestWrapper);
 
 DNSServer dnsServer;
 WebServer server(80);
+
+// Include Update server
+#ifdef ESP8266
+# include <ESP8266HTTPUpdateServer.h>
+#elif defined(ESP32)
+# include <IotWebConfESP32HTTPUpdateServer.h>
+#endif
+
+// Create Update Server
+#ifdef ESP8266
+ESP8266HTTPUpdateServer httpUpdater;
+#elif defined(ESP32)
 HTTPUpdateServer httpUpdater;
+#endif
 
 char mqttServerValue[STRING_LEN];
 char mqttUserNameValue[STRING_LEN];
@@ -19,11 +32,12 @@ char checkIntervalValue[NUMBER_LEN];
 boolean needReset = false;
 
 IotWebConf iotWebConf(thingName, &dnsServer, &server, wifiInitialApPassword, CONFIG_VERSION);
-IotWebConfParameter mqttServerParam = IotWebConfParameter("MQTT server", "mqttServer", mqttServerValue, STRING_LEN);
-IotWebConfParameter mqttUserNameParam = IotWebConfParameter("MQTT user", "mqttUser", mqttUserNameValue, STRING_LEN);
-IotWebConfParameter mqttUserPasswordParam = IotWebConfParameter("MQTT password", "mqttPass", mqttUserPasswordValue, STRING_LEN, "password");
-IotWebConfParameter mqttTopicParam = IotWebConfParameter("MQTT topic", "mqttTopic", mqttTopicValue, STRING_LEN, "text", NULL, "inverter/status");
-IotWebConfParameter checkIntervalParam = IotWebConfParameter("Check inverval in sec", "checkInterval", checkIntervalValue, NUMBER_LEN, "number", "1..3600", "300", "min='1' max='3600' step='1'");
+iotwebconf::ParameterGroup mqttGroup = iotwebconf::ParameterGroup("mqttGroup");
+iotwebconf::TextParameter  mqttServerParam = iotwebconf::TextParameter ("MQTT server", "mqttServer", mqttServerValue, STRING_LEN);
+iotwebconf::TextParameter  mqttUserNameParam = iotwebconf::TextParameter ("MQTT user", "mqttUser", mqttUserNameValue, STRING_LEN);
+iotwebconf::PasswordParameter mqttUserPasswordParam = iotwebconf::PasswordParameter("MQTT password", "mqttPass", mqttUserPasswordValue, STRING_LEN, "password");
+iotwebconf::TextParameter  mqttTopicParam = iotwebconf::TextParameter ("MQTT topic", "mqttTopic", mqttTopicValue, STRING_LEN, "text", NULL, "inverter/status");
+iotwebconf::NumberParameter checkIntervalParam = iotwebconf::NumberParameter ("Check inverval in sec", "checkInterval", checkIntervalValue, NUMBER_LEN, "300", "1..3600", "min='1' max='3600' step='1'");
 
 boolean isNeedReset(){
     return needReset;
@@ -48,15 +62,18 @@ void configSetup(){
   iotWebConf.skipApStartup();
   iotWebConf.setStatusPin(STATUS_PIN);
   iotWebConf.setConfigPin(CONFIG_PIN);
-  iotWebConf.addParameter(&mqttServerParam);
-  iotWebConf.addParameter(&mqttUserNameParam);
-  iotWebConf.addParameter(&mqttUserPasswordParam);
-  iotWebConf.addParameter(&mqttTopicParam);
-  iotWebConf.addParameter(&checkIntervalParam);
+  mqttGroup.addItem(&mqttServerParam);
+  mqttGroup.addItem(&mqttUserNameParam);
+  mqttGroup.addItem(&mqttUserPasswordParam);
+  mqttGroup.addItem(&mqttTopicParam);
+  mqttGroup.addItem(&checkIntervalParam);
+  iotWebConf.addParameterGroup(&mqttGroup);
   iotWebConf.setConfigSavedCallback(&configSaved);
   iotWebConf.setFormValidator(&formValidator);
   iotWebConf.setWifiConnectionCallback(&wifiConnected);
-  // iotWebConf.setupUpdateServer(&httpUpdater);
+  iotWebConf.setupUpdateServer(
+    [](const char* updatePath) { httpUpdater.setup(&server, updatePath); },
+    [](const char* userName, char* password) { httpUpdater.updateCredentials(userName, password); });
 
   // -- Initializing the configuration.
   boolean validConfig = iotWebConf.init();
@@ -89,7 +106,7 @@ void configLoop(){
 }
 
 boolean isOnline(){
-   return iotWebConf.getState() == IOTWEBCONF_STATE_ONLINE;
+   return iotWebConf.getState() == iotwebconf::OnLine;
 }
 
 char* getThingName(){
@@ -104,7 +121,7 @@ void configSaved()
   needReset = true;
 }
 
-boolean formValidator()
+boolean formValidator(iotwebconf::WebRequestWrapper* webRequestWrapper)
 {
 #ifndef DEBUG_DISABLED
   Debug.println("Validating form.");

@@ -6,6 +6,7 @@
 #include "Arduino.h"
 #include "Debug.h"
 #include <IotWebConf.h>
+#include <IotWebConfUsing.h>
 
 const char thingName[] = "sofarsolar2mqtt";
 const char wifiInitialApPassword[] = "sofarsolar2mqtt";
