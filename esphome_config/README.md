@@ -91,17 +91,8 @@ text_sensor:
     lambda: |-
       std::string z = "";
       int idx = item->offset;
-      //byte[0]
-      if ((data[idx] & 0x1) != 0) z += "GridOVP,";
-      if ((data[idx] & 0x2) != 0) z += "GridUVP,";
-      if ((data[idx] & 0x4) != 0) z += "GridOFP,";
-      if ((data[idx] & 0x8) != 0) z += "GridUFP,";
-      if ((data[idx] & 0x10) != 0) z += "PVUVP,";
-      if ((data[idx] & 0x20) != 0) z += "GridLVRT,";
-      if ((data[idx] & 0x40) != 0) z += "reserve-ID7,";
-      if ((data[idx] & 0x80) != 0) z += "reserve-ID8,";
+      // WORD bytes (MSB first then LSB)
       //byte[1]
-      idx++;
       if ((data[idx] & 0x1) != 0) z += "PVOVP,";
       if ((data[idx] & 0x2) != 0) z += "IpvUnbalance,";
       if ((data[idx] & 0x4) != 0) z += "PvConfigSetWrong,";
@@ -110,16 +101,16 @@ text_sensor:
       if ((data[idx] & 0x20) != 0) z += "HwBoostOCP,";
       if ((data[idx] & 0x40) != 0) z += "HwAcOCP,";
       if ((data[idx] & 0x80) != 0) z += "AcRmsOCP,";
-      //byte[2]
+      //byte[0]
       idx++;
-      if ((data[idx] & 0x1) != 0) z += "HwADFaultIGrid,";
-      if ((data[idx] & 0x2) != 0) z += "HwADFaultDCI,";
-      if ((data[idx] & 0x4) != 0) z += "HwADFaultVGrid,";
-      if ((data[idx] & 0x8) != 0) z += "GFCIDeviceFault,";
-      if ((data[idx] & 0x10) != 0) z += "MChip_Fault,";
-      if ((data[idx] & 0x20) != 0) z += "HwAuxPowerFault,";
-      if ((data[idx] & 0x40) != 0) z += "BusVoltZeroFault,";
-      if ((data[idx] & 0x80) != 0) z += "IacRmsUnbalance,";
+      if ((data[idx] & 0x1) != 0) z += "GridOVP,";
+      if ((data[idx] & 0x2) != 0) z += "GridUVP,";
+      if ((data[idx] & 0x4) != 0) z += "GridOFP,";
+      if ((data[idx] & 0x8) != 0) z += "GridUFP,";
+      if ((data[idx] & 0x10) != 0) z += "PVUVP,";
+      if ((data[idx] & 0x20) != 0) z += "GridLVRT,";
+      if ((data[idx] & 0x40) != 0) z += "reserve-ID7,";
+      if ((data[idx] & 0x80) != 0) z += "reserve-ID8,";
       //byte[3]
       idx++;
       if ((data[idx] & 0x1) != 0) z += "BusUVP,";
@@ -130,22 +121,22 @@ text_sensor:
       if ((data[idx] & 0x20) != 0) z += "SwBOCPInstant,";
       if ((data[idx] & 0x40) != 0) z += "reserved-ID31,";
       if ((data[idx] & 0x80) != 0) z += "reserved-ID32,";
-      //byte[4]
+      //byte[2]
       idx++;
-      if (data[idx] != 0) z += "reserved-ID33~40,";
+      if ((data[idx] & 0x1) != 0) z += "HwADFaultIGrid,";
+      if ((data[idx] & 0x2) != 0) z += "HwADFaultDCI,";
+      if ((data[idx] & 0x4) != 0) z += "HwADFaultVGrid,";
+      if ((data[idx] & 0x8) != 0) z += "GFCIDeviceFault,";
+      if ((data[idx] & 0x10) != 0) z += "MChip_Fault,";
+      if ((data[idx] & 0x20) != 0) z += "HwAuxPowerFault,";
+      if ((data[idx] & 0x40) != 0) z += "BusVoltZeroFault,";
+      if ((data[idx] & 0x80) != 0) z += "IacRmsUnbalance,";
       //byte[5]
       idx++;
       if (data[idx] != 0) z += "reserved-ID41~48,";
-      //byte[6]
+      //byte[4]
       idx++;
-      if ((data[idx] & 0x1) != 0) z += "ConsistentFault_VGrid,";
-      if ((data[idx] & 0x2) != 0) z += "ConsistentFault_FGrid,";
-      if ((data[idx] & 0x4) != 0) z += "ConsistentFault_DCI,";
-      if ((data[idx] & 0x8) != 0) z += "ConsistentFault_GFCI,";
-      if ((data[idx] & 0x10) != 0) z += "SpiCommLose,";
-      if ((data[idx] & 0x20) != 0) z += "SciCommLose,";
-      if ((data[idx] & 0x40) != 0) z += "RelayTestFail,";
-      if ((data[idx] & 0x80) != 0) z += "PvIsoFault,";
+      if (data[idx] != 0) z += "reserved-ID33~40,";
       //byte[7]
       idx++;
       if ((data[idx] & 0x1) != 0) z += "OverTempFault_Inv,";
@@ -156,16 +147,16 @@ text_sensor:
       if ((data[idx] & 0x20) != 0) z += "reserved-ID62,";
       if ((data[idx] & 0x40) != 0) z += "reserved-ID63,";
       if ((data[idx] & 0x80) != 0) z += "reserved-ID64,";
-      //byte[8]
+      //byte[6]
       idx++;
-      if ((data[idx] & 0x1) != 0) z += "unrecoverHwAcOCP,";
-      if ((data[idx] & 0x2) != 0) z += "unrecoverBusOVP,";
-      if ((data[idx] & 0x4) != 0) z += "unrecoverIacRmsUnbalance,";
-      if ((data[idx] & 0x8) != 0) z += "unrecoverIpvUnbalance,";
-      if ((data[idx] & 0x10) != 0) z += "unrecoverVbusUnbalance,";
-      if ((data[idx] & 0x20) != 0) z += "unrecoverOCPInstant,";
-      if ((data[idx] & 0x40) != 0) z += "unrecoverPvConfigSetWrong,";
-      if ((data[idx] & 0x80) != 0) z += "reserved-ID72,";
+      if ((data[idx] & 0x1) != 0) z += "ConsistentFault_VGrid,";
+      if ((data[idx] & 0x2) != 0) z += "ConsistentFault_FGrid,";
+      if ((data[idx] & 0x4) != 0) z += "ConsistentFault_DCI,";
+      if ((data[idx] & 0x8) != 0) z += "ConsistentFault_GFCI,";
+      if ((data[idx] & 0x10) != 0) z += "SpiCommLose,";
+      if ((data[idx] & 0x20) != 0) z += "SciCommLose,";
+      if ((data[idx] & 0x40) != 0) z += "RelayTestFail,";
+      if ((data[idx] & 0x80) != 0) z += "PvIsoFault,";
       //byte[9]
       idx++;
       if ((data[idx] & 0x1) != 0) z += "reserved-ID73,";
@@ -176,6 +167,16 @@ text_sensor:
       if ((data[idx] & 0x20) != 0) z += "reserved-ID78,";
       if ((data[idx] & 0x40) != 0) z += "reserved-ID79,";
       if ((data[idx] & 0x80) != 0) z += "reserved-ID80,";
+      //byte[8]
+      idx++;
+      if ((data[idx] & 0x1) != 0) z += "unrecoverHwAcOCP,";
+      if ((data[idx] & 0x2) != 0) z += "unrecoverBusOVP,";
+      if ((data[idx] & 0x4) != 0) z += "unrecoverIacRmsUnbalance,";
+      if ((data[idx] & 0x8) != 0) z += "unrecoverIpvUnbalance,";
+      if ((data[idx] & 0x10) != 0) z += "unrecoverVbusUnbalance,";
+      if ((data[idx] & 0x20) != 0) z += "unrecoverOCPInstant,";
+      if ((data[idx] & 0x40) != 0) z += "unrecoverPvConfigSetWrong,";
+      if ((data[idx] & 0x80) != 0) z += "reserved-ID72,";
       if(z.length() > 0){
         z.pop_back();
       }
